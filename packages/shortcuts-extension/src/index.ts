@@ -355,16 +355,20 @@ List of keyboard shortcuts:`,
     });
 
     try {
-      // Repopulate the canonical variable after the setting registry has
-      // preloaded all initial plugins.
       canonical = null;
-
       const settings = await registry.load(shortcuts.id);
 
       Private.loadShortcuts(commands, settings.composite);
       settings.changed.connect(() => {
         Private.loadShortcuts(commands, settings.composite);
       });
+
+      (window as any).jupyterapp ||= { registry: { plugins: {} } };
+      (window as any).jupyterapp.registry.plugins ||= {};
+      (window as any).jupyterapp.registry.plugins['shortcuts'] = {
+        schema: settings.schema
+      };
+
     } catch (error) {
       console.error(`Loading ${shortcuts.id} failed.`, error);
     }
